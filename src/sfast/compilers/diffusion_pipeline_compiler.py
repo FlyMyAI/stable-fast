@@ -84,8 +84,9 @@ def compile(m, config):
         'cuda' if torch.cuda.is_available() else 'cpu')
 
     enable_cuda_graph = config.enable_cuda_graph and device.type == 'cuda'
-
-    m.unet = compile_unet(m.unet, config)
+    assert device.type == 'cuda'
+    if hasattr(m, 'unet'):
+        m.unet = compile_unet(m.unet, config)
     if hasattr(m, 'controlnet'):
         m.controlnet = compile_unet(m.controlnet, config)
     m.vae = compile_vae(m.vae, config)
@@ -93,6 +94,8 @@ def compile(m, config):
     if config.enable_jit:
         lazy_trace_ = _build_lazy_trace(config)
 
+        if getattr(m, 'transformer', None) is not None:
+            m.transformer.forward = lazy_trace_(m.transformer.forward)
         if getattr(m, 'text_encoder', None) is not None:
             m.text_encoder.forward = lazy_trace_(m.text_encoder.forward)
         # for SDXL
@@ -107,6 +110,9 @@ def compile(m, config):
             m.scheduler.step = lazy_trace_(m.scheduler.step)
 
     if enable_cuda_graph:
+        if getattr(m, 'transformer', None) is not None:
+            m.transformer.forward = make_dynamic_graphed_callable(
+                m.transformer.forward)
         if getattr(m, 'text_encoder', None) is not None:
             m.text_encoder.forward = make_dynamic_graphed_callable(
                 m.text_encoder.forward)
