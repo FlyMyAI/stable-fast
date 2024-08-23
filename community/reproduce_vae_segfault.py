@@ -22,7 +22,6 @@ vae_orig = AutoencoderKL.from_pretrained(
 vae_orig.to(device)
 
 sfast_config = CompilationConfig.Default()
-sfast_config.enable_xformers = False
 sfast_config.enable_triton = True
 sfast_config.enable_cuda_graph = False
 vae = compile_vae(vae_orig, sfast_config)

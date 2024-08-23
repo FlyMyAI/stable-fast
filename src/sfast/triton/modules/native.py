@@ -8,12 +8,12 @@ from .. import torch_ops as TTO
 logger = logging.getLogger()
 
 # try:
-#     import xformers
-#     from xformers.triton.fused_linear_layer import _fused_linear_triton
+#     import 
+#     from .triton.fused_linear_layer import _fused_linear_triton
 # except ImportError:
 #     logger.warning(
-#         'xformers not found, some Triton optimizations will be disabled')
-#     xformers = None
+#         ' not found, some Triton optimizations will be disabled')
+#      = None
 
 
 class TritonConv2D(nn.Module):
@@ -40,7 +40,7 @@ class TritonLinear(nn.Module):
         weight = self.module.weight
         x = TTO.contiguous(x, memory_format=suggest_memory_format(weight))
         return self.module(x, *args, **kwargs)
-        # if xformers is None:
+        # if  is None:
         #     return self.module(x, *args, **kwargs)
         # else:
         #     grad_mode = torch.is_grad_enabled()

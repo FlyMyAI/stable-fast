@@ -46,8 +46,6 @@ class CompilationConfig:
             Whether to prefer low-precision GEMM and a series of fusion optimizations.
             This will make the model faster, but may cause numerical issues.
             These use fp16 for accumulation, so could cause **quality degradation**.
-        enable_xformers:
-            Whether to enable xformers and hijack it to make it compatible with JIT tracing.
         enable_cuda_graph:
             Whether to enable CUDA graph. CUDA Graph will significantly speed up the model,
             by reducing the overhead of CUDA kernel launch, memory allocation, etc.
@@ -72,7 +70,6 @@ class CompilationConfig:
         enable_fused_linear_geglu: bool = gpu_device.device_has_capability(
             8, 0)
         prefer_lowp_gemm: bool = True
-        enable_xformers: bool = False
         enable_cuda_graph: bool = False
         enable_triton: bool = False
         trace_scheduler: bool = False
@@ -137,9 +134,6 @@ def compile_unet(m, config):
 
     enable_cuda_graph = config.enable_cuda_graph and device.type == 'cuda'
 
-    if config.enable_xformers:
-        _enable_xformers(m)
-
     if config.memory_format is not None:
         apply_memory_format(m, memory_format=config.memory_format)
 
@@ -163,9 +157,6 @@ def compile_vae(m, config):
         'cuda' if torch.cuda.is_available() else 'cpu')
 
     enable_cuda_graph = config.enable_cuda_graph and device.type == 'cuda'
-
-    if config.enable_xformers:
-        _enable_xformers(m)
 
     if config.memory_format is not None:
         apply_memory_format(m, memory_format=config.memory_format)
@@ -320,23 +311,3 @@ def _build_ts_compiler(config,
     )
 
     return ts_compiler
-
-
-def _enable_xformers(m):
-    from xformers import ops
-    from sfast.libs.xformers.xformers_attention import xformers_memory_efficient_attention
-
-    ops.memory_efficient_attention = xformers_memory_efficient_attention
-
-    if hasattr(m, 'enable_xformers_memory_efficient_attention'):
-        m.enable_xformers_memory_efficient_attention()
-
-        if isinstance(m, torch.nn.Module):
-            from sfast.libs.diffusers.xformers_attention import patch_all_attention_modules
-
-            patch_all_attention_modules(m)
-    else:
-        logger.warning(
-            'enable_xformers_memory_efficient_attention() is not available.'
-            ' If you have enabled xformers by other means, ignore this warning.'
-        )

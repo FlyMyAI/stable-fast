@@ -53,11 +53,6 @@ def load_model():
 def compile_model(model):
     config = CompilationConfig.Default()
     try:
-        import xformers
-        config.enable_xformers = True
-    except ImportError:
-        print('xformers not installed, skip')
-    try:
         import triton
         config.enable_triton = True
     except ImportError:

@@ -247,9 +247,6 @@ setup(
             "diffusers>=0.19.0",
             "transformers",
         ],
-        "xformers": [
-            "xformers>=0.0.20",
-        ],
         "triton": [
             "triton>=2.1.0",
         ],

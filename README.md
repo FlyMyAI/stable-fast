@@ -93,7 +93,7 @@ Currently both __Linux__ and __Windows__ wheels are available.
 # Change cu121 to your CUDA version and <wheel file> to the path of the wheel file.
 # And make sure the wheel file is compatible with your PyTorch version.
 pip3 install --index-url https://download.pytorch.org/whl/cu121 \
-    'torch>=2.1.0' 'xformers>=0.0.22' 'triton>=2.1.0' 'diffusers>=0.19.3' \
+    'torch>=2.1.0' 'triton>=2.1.0' 'diffusers>=0.19.3' \
     '<wheel file>'
 ```
 
@@ -107,7 +107,7 @@ pip3 install --index-url https://download.pytorch.org/whl/cu121 \
 # Install PyTorch with CUDA and other packages at first.
 # Windows user: Triton might be not available, you could skip it.
 # NOTE: 'wheel' is required or you will meet `No module named 'torch'` error when building.
-pip3 install wheel 'torch>=2.1.0' 'xformers>=0.0.22' 'triton>=2.1.0' 'diffusers>=0.19.3'
+pip3 install wheel 'torch>=2.1.0' 'triton>=2.1.0' 'diffusers>=0.19.3'
 
 # (Optional) Makes the build much faster.
 pip3 install ninja
@@ -121,8 +121,7 @@ pip3 install -v -U git+https://github.com/chengzeyi/stable-fast.git@main#egg=sta
 
 __NOTE__: Any usage outside `sfast.compilers` is not guaranteed to be backward compatible.
 
-__NOTE__: To get the best performance, `xformers` and OpenAI's `triton>=2.1.0` need to be installed and enabled.
-You might need to build `xformers` from source to make it compatible with your `PyTorch`.
+__NOTE__: Removed `xformers` since it has become obsolete in recent PyTorch versions.
 
 ## Usage
 
@@ -152,12 +151,6 @@ def load_model():
 model = load_model()
 
 config = CompilationConfig.Default()
-# xformers and Triton are suggested for achieving best performance.
-try:
-    import xformers
-    config.enable_xformers = True
-except ImportError:
-    print('xformers not installed, skip')
 try:
     import triton
     config.enable_triton = True

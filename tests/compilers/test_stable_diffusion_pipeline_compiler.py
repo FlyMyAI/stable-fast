@@ -409,14 +409,9 @@ def benchmark_sd_model(
             # del compiled_model
 
         logger.info(
-            'Benchmarking compiled StableDiffusionPipeline with xformers, Triton and CUDA Graph'
+            'Benchmarking compiled StableDiffusionPipeline with Triton and CUDA Graph'
         )
         config = CompilationConfig.Default()
-        try:
-            import xformers
-            config.enable_xformers = True
-        except ImportError:
-            logger.warning('xformers not installed, skip')
         try:
             import triton
             config.enable_triton = True
